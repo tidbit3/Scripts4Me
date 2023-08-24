@@ -1,0 +1,46 @@
+# Define a list of package names for apps to be removed or disabled
+$AppsToRemove = @(
+    "Microsoft.3DBuilder",
+    "Microsoft.BingWeather",
+    "Microsoft.GetHelp",
+    "Microsoft.MicrosoftOfficeHub",
+    "Microsoft.MicrosoftSolitaireCollection",
+    "Microsoft.Messaging",
+    "Microsoft.Office.OneNote",
+    "Microsoft.Office.Sway",
+    "Microsoft.OfficeLens",
+    "Microsoft.OneConnect",
+    "Microsoft.People",
+    "Microsoft.Print3D",
+    "Microsoft.SkypeApp",
+    "Microsoft.StorePurchaseApp",
+    "Microsoft.Wallet",
+    "Microsoft.WindowsFeedbackHub",
+    "Microsoft.XboxApp",
+    "Microsoft.XboxGameOverlay",
+    "Microsoft.XboxIdentityProvider",
+    "Microsoft.XboxSpeechToTextOverlay",
+    "Microsoft.ZuneMusic",
+    "Microsoft.ZuneVideo"
+)
+
+# Disable Windows Telemetry
+Write-Host "Disabling Windows Telemetry..."
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0 -Force
+
+# Uninstall or disable specified apps
+ForEach ($App in $AppsToRemove) {
+    Write-Host "Removing or disabling $App..."
+    Get-AppxPackage -Name $App | ForEach-Object {
+        if ($_.IsDevelopmentMode -eq $false) {
+            # Uninstall the app
+            Remove-AppxPackage -Package $_.PackageFullName -Confirm:$false
+        } else {
+            # Disable the app (in case it can't be removed)
+            Write-Host "Disabling $App..."
+            Disable-AppxProvisionedPackage -Online -PackageName $_.PackageName -Confirm:$false
+        }
+    }
+}
+
+Write-Host "Bloatware removal and disabling completed."
