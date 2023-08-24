@@ -1,0 +1,30 @@
+# Define variables for domain and forest names
+# Remember to chance yourdomain.local, yourforest.local, and YourAdminPassword to your custom fields
+$DomainName = "yourdomain.local"
+$ForestName = "yourforest.local"
+$AdminPassword = ConvertTo-SecureString "YourAdminPassword" -AsPlainText -Force
+
+# Install AD DS role and promote to Domain Controller
+Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+
+# Configure a new forest
+Install-ADDSForest `
+    -DomainName $DomainName `
+    -ForestMode Win2016Forest `
+    -DomainMode Win2016Domain `
+    -DomainNetbiosName ($DomainName -split '\.')[0] `
+    -InstallDNS `
+    -Force
+
+# Set the SafeModeAdministratorPassword
+Set-ADAccountPassword -Identity (Get-ADDomain).DistinguishedName -NewPassword $AdminPassword -Reset
+
+# Restart the server to complete the promotion
+Restart-Computer -Force
+
+# Check if the server is a domain controller
+if ((Get-WindowsFeature -Name AD-Domain-Services).Installed) {
+    Write-Host "Domain Controller setup completed successfully."
+} else {
+    Write-Host "Domain Controller setup encountered an issue."
+}
