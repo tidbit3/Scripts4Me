@@ -1,0 +1,44 @@
+# IMPORTANT: Before running this script, please make the following replacements:
+# 1. Replace "DHCP_SERVER_IP_OR_HOSTNAME" with the IP address or hostname of your DHCP server.
+
+# Define the DHCP server's hostname or IP address (replace with your DHCP server's information)
+$DhcpServer = "DHCP_SERVER_IP_OR_HOSTNAME"
+
+# Get DHCP server configuration
+$DhcpConfig = Get-DhcpServerSetting -ComputerName $DhcpServer
+
+# Display DHCP server configuration
+Write-Host "DHCP Server Configuration:"
+Write-Host "Server Name: $($DhcpConfig.ServerName)"
+Write-Host "DNS Dynamic Update Credentials: $($DhcpConfig.DnsDynamicUpdateCredentials)"
+Write-Host "Conflict Detection Attempts: $($DhcpConfig.ConflictDetectionAttempts)"
+Write-Host "Lease Duration: $($DhcpConfig.LeaseDuration)"
+Write-Host "Lease Scavenging State: $($DhcpConfig.LeaseScavengingState)"
+
+# Get DHCP scopes
+$DhcpScopes = Get-DhcpServerv4Scope -ComputerName $DhcpServer
+
+# Display DHCP scope information
+foreach ($Scope in $DhcpScopes) {
+    Write-Host "DHCP Scope:"
+    Write-Host "Scope ID: $($Scope.ScopeId)"
+    Write-Host "Subnet Mask: $($Scope.SubnetMask)"
+    Write-Host "Start IP: $($Scope.StartRange)"
+    Write-Host "End IP: $($Scope.EndRange)"
+    Write-Host "Lease Duration: $($Scope.LeaseDuration)"
+    Write-Host "State: $($Scope.State)"
+}
+
+# Get DHCP lease information
+$DhcpLeases = Get-DhcpServerv4Lease -ComputerName $DhcpServer
+
+# Display DHCP lease information
+Write-Host "DHCP Leases:"
+foreach ($Lease in $DhcpLeases) {
+    Write-Host "Client IP: $($Lease.IpAddress)"
+    Write-Host "MAC Address: $($Lease.ClientId)"
+    Write-Host "Expires On: $($Lease.Expires)"
+    Write-Host "Hostname: $($Lease.HostName)"
+    Write-Host "Client Type: $($Lease.ClientType)"
+    Write-Host "------------------"
+}
